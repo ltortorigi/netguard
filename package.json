@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server/app.js",
     "demo:target": "node server/demo-target.js",
-    "test": "node --test"
+    "test": "node --test",
+    "demo:walkthrough": "node server/demo-walkthrough.js"
   },
   "engines": {
     "node": ">=22"
