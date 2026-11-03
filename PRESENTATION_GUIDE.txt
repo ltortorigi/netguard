@@ -1,0 +1,120 @@
+NETGUARD — WHAT IT DOES, HOW TO RUN IT, AND 5-MINUTE PRESENTATION
+JULIETTE: Tuesday, November 10, 2026 | KILO final app: December 2, 2026
+
+WHAT THE APP DOES
+-----------------
+NetGuard is a small network service availability dashboard. It checks whether a
+configured, approved host and TCP port accept a connection. It records the last
+result, time checked, connection duration, and earlier results so an administrator
+can see when a service stops responding and when it recovers.
+
+Users sign in with an administrator password. The dashboard lets the admin add,
+edit, pause, remove, manually check, and view history for approved services.
+Enabled services are also checked automatically about every 60 seconds. Targets
+must be on the ALLOWED_TARGETS list; NetGuard is NOT a vulnerability scanner.
+
+A successful TCP connection does not guarantee the website or application itself
+is healthy. In the simple local demo, saved history goes to data/netguard.json.
+MongoDB storage is optional and only active when MONGODB_URI is configured.
+
+HOW TO RUN IT ON WINDOWS 10
+---------------------------
+You need Node.js 22 or newer. Always run the commands in the folder containing
+package.json, NOT in C:\Windows\system32. Do not type the 'PS C:\...>' prompt.
+
+FIRST TIME ONLY:
+  1. Extract the NetGuard project ZIP.
+  2. Open the 'netguard' folder in File Explorer, click the address bar, type
+     powershell, and press Enter.
+  3. Run: npm.cmd install
+  4. Run: Copy-Item .env.example .env
+     If .env already exists from a previous setup, KEEP IT; do not overwrite it.
+  5. Run: notepad .env
+     Set ADMIN_PASSWORD to your own unique password (12+ characters).
+     Keep ALLOWED_TARGETS=127.0.0.1:43080 for the demo. Save and close.
+     Do not show or submit your .env file or password.
+
+EVERY TIME YOU DEMONSTRATE:
+  PowerShell Window 1, in the netguard folder:
+     npm.cmd start
+  Leave it running. In Chrome open http://127.0.0.1:3000 and sign in.
+
+  PowerShell Window 2, in the SAME netguard folder:
+     npm.cmd run demo:walkthrough
+  The guided script starts and stops ONLY its disposable localhost test server.
+  Do NOT run 'npm.cmd run demo:target' at the same time; it uses the same port.
+  The script adds or reuses a service named 'NetGuard Guided Demo'.
+
+  In Chrome click Refresh after each guided step. Watch the card show:
+     REACHABLE -> UNREACHABLE -> REACHABLE
+  Click History to see the three real check results. Refresh the Chrome page
+  and reopen History to show the data is still saved.
+
+  Press Enter in Window 2 ONLY when ready to advance to the outage or recovery.
+  At the end, press Enter once more to stop the disposable test server. Keep
+  Window 1 open until the presentation ends.
+
+5-MINUTE PRESENTATION — WHAT TO SAY AND DO
+-----------------------------------------
+0:00–0:35  INTRODUCTION / PROBLEM
+  SHOW: NetGuard dashboard in Chrome.
+  SAY: "NetGuard is a tool I made to monitor network services. Instead of
+  manually checking if each server is working, I can see whether an approved
+  TCP port is reachable and review its history in one dashboard."
+
+0:35–1:25  NORMAL CONNECTION
+  DO: In Window 2 run the guided walkthrough (if not already running).
+  In Chrome click Refresh. Show 'NetGuard Guided Demo' as Reachable.
+  SAY: "The script starts a temporary test service on my own computer.
+  NetGuard makes a TCP connection to its port and saves the successful result."
+
+1:25–2:20  SIMULATE AN OUTAGE
+  DO: Press Enter in Window 2. In Chrome click Refresh.
+  SHOW: Unreachable.
+  SAY: "I stopped only the disposable test service. The next check cannot
+  connect, so NetGuard records that the service is unreachable."
+
+2:20–3:10  RESTORE SERVICE
+  DO: Press Enter in Window 2 again. In Chrome click Refresh.
+  SHOW: Reachable again.
+  SAY: "I brought the service back. NetGuard confirms that its port accepts a
+  connection again, without deleting the earlier failure."
+
+3:10–4:05  SHOW SAVED HISTORY
+  DO: Click History. Show success, failure, success. Refresh the browser and
+  reopen History to prove the observations persist.
+  SAY: "The history includes the time, result, and how long each connection
+  attempt took. This helps identify outages and recovery later."
+
+4:05–5:00  BEHIND THE SCENES / LIMITATION / NEXT STEP
+  SHOW: Stay on the dashboard; briefly mention the repository if needed.
+  SAY: "The frontend uses JavaScript and an Express API. Node.js performs the
+  TCP checks, and the data is saved to a local file for this classroom demo.
+  MongoDB can be configured separately. A TCP connection only proves the port
+  accepted a connection—not that the whole website works. My next steps are
+  cloud deployment, HTTP health checks, and notifications."
+
+TROUBLESHOOTING
+---------------
+- 'npm.ps1 cannot be loaded': use npm.cmd, not npm, in PowerShell.
+- 'ENOENT package.json': PowerShell is in the wrong folder; change to netguard.
+- 'Set a unique ADMIN_PASSWORD': open .env, set a unique 12+ character password.
+- 'EADDRINUSE' for port 43080: stop the OTHER demo:target window (Ctrl+C).
+- Dashboard not opening: check Window 1 is running and open 127.0.0.1:3000.
+- Service status unchanged: click Refresh; check the latest check timestamp.
+- If a step fails, don't claim a result happened. Explain what actually occurred.
+
+BEFORE YOU SUBMIT / PRESENT
+---------------------------
+[ ] I can run npm.cmd start and sign in.
+[ ] npm.cmd run demo:walkthrough completes all three real checks.
+[ ] Chrome shows Reachable -> Unreachable -> Reachable after Refresh.
+[ ] History still appears after browser refresh.
+[ ] I rehearsed the 5-minute presentation.
+[ ] I did not upload my .env or any passwords.
+[ ] The latest approved code and docs are included on the branch I submit.
+
+Repository: https://github.com/ltortorigi/netguard
+Demo runbook: docs/juliett.md
+IMPORTANT: This is a LOCAL demo. Do not claim public deployment or MongoDB use
+unless you have separately configured and verified those features.
