@@ -1,114 +1,71 @@
-# JULIETT — NetGuard Designed Product Demo Runbook
+# JULIETTE — NetGuard five-minute product demonstration
 
-**Project:** NetGuard  
-**Owner / presenter:** Logan Tortorigi  
-**Demo limit:** 10 minutes (aim for 9 minutes 30 seconds)  
-**Format:** Demonstrate the app; do not use a slide deck or browse the repository as the main presentation.  
-**Status at drafting (November 2, 2026):** **Planned runbook, not a verified live demo.** The repository currently contains the INDIA proposal and planning issues, but no NetGuard application code, verified deployment, or recorded outage/recovery evidence. Do not describe the steps below as already implemented.
+**Presentation:** Tuesday, November 10, 2026. Professor's target is **approximately 5 minutes per student**.  
+**Final application (KILO):** December 2, 2026.  
+**Presenter:** Logan Tortorigi. **Demo:** Local Node.js / Express dashboard with a controlled localhost TCP service.
 
-## 1. Demo objective and user
+## The product and the problem
 
-**Opening question:** "If one of my cloud services goes offline, how would I know, and how could I tell when it came back?"
+NetGuard gives a student managing a small number of cloud/network services one place to check whether approved TCP ports accept connections. It records results, timestamps, connection durations, and previous checks so the user can see an outage and subsequent recovery. An administrator can sign in and add, edit, pause, delete, manually check, and review history for allowed services. Enabled services are also checked automatically about every 60 seconds.
 
-**User:** A student managing a few personally controlled cloud services.
+**Honest scope:** TCP reachability is not proof that an entire website or application is healthy. NetGuard is not a vulnerability scanner. The classroom demo uses a disposable local server on `127.0.0.1:43080`; it does not affect real cloud services.
 
-**Problem:** Checking each server individually takes time and does not show when a service was unavailable.
+## Files and links
 
-**Product promise to demonstrate after implementation:** NetGuard checks an approved set of services, displays their most recent TCP reachability status, and records check history so an outage and recovery are visible.
-
-**Important distinction:** A successful TCP connection shows that a port accepted a connection. It does **not** prove the application behind that port is functioning correctly.
-
-## 2. Links and demo environment
-
-| Item | Link or location |
+| Resource | Location |
 | --- | --- |
-| Main project repository | https://github.com/ltortorigi/netguard |
-| Project proposal and requirements | [INDIA](india.md) |
-| Development branch | https://github.com/ltortorigi/netguard/tree/dev |
-| Work / acceptance criteria | https://github.com/ltortorigi/netguard/issues |
-| Initialize app and database | https://github.com/ltortorigi/netguard/issues/2 |
-| Service management and target restrictions | https://github.com/ltortorigi/netguard/issues/3 |
-| TCP monitoring | https://github.com/ltortorigi/netguard/issues/4 |
-| Scheduled checks and history | https://github.com/ltortorigi/netguard/issues/5 |
-| Status and history dashboard | https://github.com/ltortorigi/netguard/issues/6 |
-| Authentication and audit trail | https://github.com/ltortorigi/netguard/issues/7 |
-| Outage/recovery tests | https://github.com/ltortorigi/netguard/issues/8 |
-| Deployment and demo evidence | https://github.com/ltortorigi/netguard/issues/9 |
-| DEV application URL | **Not yet deployed / verified** |
-| Production application URL | **Not yet deployed / verified** |
-| Demo login | **Not yet created.** Never put passwords in Git. |
+| Repository | https://github.com/ltortorigi/netguard |
+| Plain-text speaking guide, app explanation, and Windows instructions | [PRESENTATION_GUIDE.txt](../PRESENTATION_GUIDE.txt) |
+| INDIA proposal | [india.md](india.md) |
+| Dashboard | [public/index.html](../public/index.html) / [public/app.js](../public/app.js) |
+| Express app / API / scheduler | [server/app.js](../server/app.js) |
+| Actual TCP test | [server/tcp.js](../server/tcp.js) |
+| History storage (local file, optional MongoDB) | [server/store.js](../server/store.js) |
+| Guided demo (automates local outage and recovery) | [server/demo-walkthrough.js](../server/demo-walkthrough.js) |
+| Manual backup test service | [server/demo-target.js](../server/demo-target.js) |
+| Automated tests | [test/](../test/) |
+| Project backlog | https://github.com/ltortorigi/netguard/issues |
 
-**Safe test setup:** Use a disposable TCP service that you own and that the monitor is expressly allowed to check, ideally on the same host or a reachable test VM. Do not scan arbitrary classroom/public IP addresses. Prepare the service so you can deliberately start and stop it without affecting real users. If the monitor runs on another host, `127.0.0.1` refers to the monitor's host, *not* your laptop.
+**Deployment:** A publicly hosted DEV or production application is **not yet verified**. This demonstration runs locally. Without `MONGODB_URI` configured, history is stored in `data/netguard.json`, **not MongoDB**. Do not claim otherwise.
 
-## 3. Planned live demonstration (9:30 total)
+## Before class: how to run on Windows 10
 
-The actions here are a **script for the finished app**. The timing must be adjusted during a rehearsal once the software is working.
+1. Install Node.js 22 or newer. Open PowerShell **in the NetGuard project folder that contains `package.json`**, not `C:\Windows\system32`.
+2. First setup: run `npm.cmd install`, then `Copy-Item .env.example .env` **only if `.env` does not already exist**. Open `notepad .env`, set a unique private `ADMIN_PASSWORD` at least 12 characters long, and leave `ALLOWED_TARGETS=127.0.0.1:43080` for the demo. Do not upload or show `.env`.
+3. **PowerShell Window 1:** run `npm.cmd start`, leave it running, and open `http://127.0.0.1:3000` in Chrome. Sign in using the private administrator password.
+4. **PowerShell Window 2:** from that same folder run `npm.cmd run demo:walkthrough`. This script signs in to NetGuard's actual API, adds or reuses `NetGuard Guided Demo`, and starts the disposable TCP listener. It prompts when to stop and restart that listener. In Chrome click **Refresh** after every stage.
+5. **Do not run `demo:target` at the same time as `demo:walkthrough`.** They both need port 43080. If you previously started the manual target, stop it with **Ctrl+C** before beginning the walkthrough.
 
-| Time | What the audience sees / presenter does | What to say |
+## Live demo run of show (about five minutes)
+
+| Time | What to do | What to say |
 | --- | --- | --- |
-| **0:00–0:45 — Problem + user** | Open the NetGuard application directly. | "I manage cloud services, and I want to know if one is reachable without checking each server individually. NetGuard puts those checks and their history in one place." |
-| **0:45–1:45 — Experience the product** | Sign in with a pre-created demo account. Show the dashboard and a pre-approved test service. | "This is my monitoring dashboard. It shows which services are reachable, when they were last checked, and the result of each check." |
-| **1:45–2:45 — Set up one service** | Add or enable an approved disposable service. Point out that a new monitor begins in the **unknown** state until checked. | "I can add a service I control, rather than entering arbitrary Internet targets." |
-| **2:45–3:45 — Healthy service** | With the disposable TCP listener running, wait for a real check. Show **reachable**, check time, and measured connection duration. | "The monitored port is accepting connections. This is the baseline before I simulate a failure." |
-| **3:45–5:10 — Something interesting: outage** | Stop *only* the disposable service. Show the next actual failed check and its timestamp/error. | "Now the service stops accepting connections. NetGuard records a failure instead of leaving the last success looking current." |
-| **5:10–6:30 — Recovery** | Restart the same service. Show the next successful check and the transition back to **reachable**. | "After I restart it, NetGuard records the recovery. The previous failure is still part of the history." |
-| **6:30–7:15 — Persistence** | Refresh the page and open the service's history. Point to the sequence **reachable → unreachable → reachable**. | "These results survive a page refresh because the check records are stored in the database." |
-| **7:15–8:20 — Behind the curtain** | Briefly switch to a simple architecture explanation and the specific implementation files **once they exist**. | "The browser reads the status from an Express API. A TCP checker tests approved targets, and MongoDB stores the observations." |
-| **8:20–9:00 — Reality check** | Return to the app; point out a limitation. | "TCP reachability is not full application health, and checks on a schedule can miss outages between checks. This is a small personal monitor, not an enterprise security system." |
-| **9:00–9:30 — What comes next** | Leave the dashboard visible. | "Next, I would add HTTP health checks and notifications. My goal is a useful monitoring tool and a project that demonstrates practical networking and backend development." |
+| **0:00–0:35** Problem + user | Start with the **dashboard**, not GitHub or slides. | "If one of my network services stops responding, I don't want to check each one manually. NetGuard puts its connection status and history in one place." |
+| **0:35–1:25** Experience the product | Show signed-in dashboard. Begin guided walkthrough in Window 2; click **Refresh** in Chrome. Point to **Reachable**. | "This approved test service is running on my computer. NetGuard opens a TCP connection and saves a successful check." |
+| **1:25–2:20** Something interesting: outage | Press **Enter** at the first walkthrough prompt. Click **Refresh**. Show **Unreachable**. | "I stopped the disposable test service. NetGuard checked again, couldn't connect, and recorded the outage." |
+| **2:20–3:10** Recovery | Press **Enter** at the second prompt. Click **Refresh**. Show **Reachable**. | "I restored the service. NetGuard detected that the connection works again while keeping the earlier failure." |
+| **3:10–4:05** Persisted history | Click **History**. Show reachable → unreachable → reachable in the actual timestamps (newest first in the UI). Refresh the page and reopen History. | "The history includes the check time and connection duration. It stays saved after refreshing." |
+| **4:05–5:00** Behind the curtain, reality check, next steps | Keep the app visible. Mention the TCP checker, Express API, and current storage mode. | "Node.js runs the checks, Express serves the API, and results are saved locally in this demo. TCP only proves that a port accepted a connection. Next I'd deploy the app and add HTTP checks and notifications." |
 
-**Audience participation (optional):** Invite someone to choose which of **two pre-approved disposable test services** to demonstrate. Do not let the audience supply arbitrary IP addresses, domains, or ports.
+**Optional class interaction:** Invite a classmate to tell you when to press Enter to cause the outage. The target remains the pre-approved disposable localhost service; do not allow arbitrary hosts or ports.
 
-**Timing risk:** The project plan calls for checks about every 60 seconds with a five-second timeout. Three actual status transitions might exceed the planned demonstration times. Rehearse the whole sequence. If you cannot make it fit, play a short, **clearly labeled real recording** of the outage/recovery checks after first showing the live interface. Never substitute manually edited or fabricated monitoring history for real evidence.
+## Demonstration checkpoints
 
-## 4. Pre-demo checklist
+- [ ] `npm.cmd start` launches successfully and the dashboard opens on the actual presentation PC.
+- [ ] You can sign in with a private password without sharing it.
+- [ ] The second window's `npm.cmd run demo:walkthrough` shows **Reachable → Unreachable → Reachable**.
+- [ ] Clicking **Refresh** in Chrome displays those transitions for `NetGuard Guided Demo`.
+- [ ] Clicking **History** displays each real check, and the history remains after a browser refresh.
+- [ ] You have run `npm.cmd test` and confirmed its result in your environment.
+- [ ] You have rehearsed the demonstration and finished near five minutes.
+- [ ] The repository branch being submitted contains this runbook and the current app code.
 
-Complete these **before** presenting the demo as working:
+## Backup and limitations
 
-- [ ] Implement the application and confirm the project starts (Issue #2).
-- [ ] Configure MongoDB without committing credentials.
-- [ ] Require authentication for administration, and permit only approved monitoring targets (Issues #3 and #7).
-- [ ] Implement safe TCP connection attempts, connection deadlines, and scheduled checks (Issues #4–5).
-- [ ] Display **unknown**, **reachable**, **unreachable**, and **stale** states accurately, with timestamps and check history (Issue #6).
-- [ ] Save checks in MongoDB and prove that history remains after refreshing.
-- [ ] Verify a disposable service's **working → stopped → restarted** sequence and save real verification evidence (Issue #8).
-- [ ] Publish and test a DEV or production app URL from the classroom presentation machine (Issue #9).
-- [ ] Create a separate demo login, keep its password private, and test it beforehand.
-- [ ] Start with a clean prepared demonstration record; do not delete unrelated user records.
-- [ ] If using prerecorded evidence, label it and keep an offline local backup in case network access fails.
-- [ ] Rehearse with a stopwatch and keep the total under 10 minutes.
-- [ ] Update this runbook's unverified fields and script to match what is **actually** implemented.
+If the guided script cannot bind port 43080 (`EADDRINUSE`), stop any separate `demo:target` process and retry. If the browser status doesn't update, click **Refresh** and inspect the last-check timestamp. To do the sequence manually, run `npm.cmd run demo:target` in Window 2; use **Check now** in Chrome, press **Ctrl+C** to stop that disposable process, check again, then restart the disposable process and check once more. Never stop real services during the demo.
 
-## 5. Simple architecture to explain after the audience sees the product
+If a demo action actually fails, explain the failure rather than claiming it worked. A short genuine rehearsal recording may be a backup, clearly identified as a recording. No public deployment or live MongoDB demonstration is claimed until verified.
 
-```mermaid
-flowchart LR
-    User[Browser dashboard] --> API[Node.js / Express API]
-    API --> DB[(MongoDB check history)]
-    Scheduler[Scheduled monitoring worker] --> Checker[TCP connection checker]
-    Checker --> Target[Approved test service]
-    Checker --> DB
-    API --> DB
-```
+## Architecture you can explain in one sentence
 
-**Planned architecture, not yet implemented.** Once the code exists, replace this note with precise links to the relevant frontend, checker, scheduler, API, database, authentication, and test files.
-
-## 6. Controlled failure and backup path
-
-**Happy path:** The test service is reachable → stop it → monitor records an outage → restart it → monitor records recovery → refresh to show retained history.
-
-**If the live check is delayed:** Explain the configured polling interval and show the *latest actual result* rather than claiming that a pending check has run. Use a clearly identified real video clip, if recorded.
-
-**If MongoDB or deployment is unavailable:** Do not claim a successful live demo. Explain the failure and, if available, show authentic earlier test or deployment evidence. Do not expose `.env`, database connection strings, tokens, or admin passwords.
-
-**If the audience asks about security:** Explain that targets are restricted to approved hosts/ports and administration is intended to require authentication. Only claim these controls work after the linked implementation and tests exist.
-
-## 7. Reality check and next steps
-
-Current verified state at the time this file was written: proposal, research, issues, and GitHub branches only. The monitor, dashboard, authentication, and deployments are still to be built and verified.
-
-**Limitations of the intended first version:** A successful TCP handshake alone cannot validate an application's business functionality; one-minute checks do not guarantee every brief outage is observed; monitoring is limited to deliberately approved targets; and the project initially targets one administrator and a small set of services.
-
-**After a working first release:** Consider HTTP endpoint checks, downtime notifications, and optional SSH-login security analysis. Keep any new capability separate from the required working core.
-
-**Completion evidence:** Link the deployed app, a passing test run, and the actual controlled failure/recovery proof here once available. The presentation should lead with those observable results, not the GitHub issue tracker.
+**Browser dashboard → Express REST API → TCP checker of an approved port → saved check history (local JSON file by default, MongoDB optionally).** A background scheduler also performs checks about every 60 seconds, and the **Check now** button or guided script initiates a check immediately.
