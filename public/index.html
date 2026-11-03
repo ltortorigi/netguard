@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NetGuard checks the TCP reachability of explicitly approved services.">
+  <title>NetGuard — Service availability</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell header-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">●</span> NetGuard <small>Network monitoring</small></div>
+      <button id="logout" class="button button-small button-outline" type="button" hidden>Sign out</button>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">SERVICE AVAILABILITY</p>
+      <h1>Know when a service goes down.</h1>
+      <p>Monitor approved TCP ports, see the latest result, and review a history of outages and recovery.</p>
+    </section>
+    <p id="message" class="message" role="status" hidden></p>
+    <section id="loginPanel" class="panel login-panel" aria-labelledby="loginTitle">
+      <h2 id="loginTitle">Administrator sign in</h2>
+      <p>Enter the password configured on the NetGuard server.</p>
+      <form id="loginForm">
+        <label for="password">Password</label>
+        <div class="form-row"><input type="password" id="password" autocomplete="current-password" required minlength="12"><button class="button" type="submit">Sign in</button></div>
+      </form>
+    </section>
+    <div id="dashboard" hidden>
+      <section class="overview" aria-label="Service summary">
+        <div class="stat"><span class="stat-label">Services</span><strong id="totalCount">0</strong></div>
+        <div class="stat"><span class="stat-label">Reachable</span><strong id="upCount">0</strong></div>
+        <div class="stat"><span class="stat-label">Unreachable</span><strong id="downCount">0</strong></div>
+        <div class="stat"><span class="stat-label">Storage</span><strong id="storageMode" class="storage-label">—</strong></div>
+      </section>
+      <section class="panel" aria-labelledby="addHeading">
+        <div class="section-heading"><h2 id="addHeading">Add an approved service</h2><span class="hint">Targets are restricted by the server configuration.</span></div>
+        <form id="addForm" class="add-form">
+          <div><label for="serviceName">Service name</label><input id="serviceName" maxlength="80" placeholder="Demo TCP service" required></div>
+          <div><label for="serviceTarget">Approved host and port</label><select id="serviceTarget" required></select></div>
+          <button class="button" type="submit">Add service</button>
+        </form>
+        <p class="hint compact">A new service starts as <strong>Unknown</strong> until its first check.</p>
+      </section>
+      <section class="panel services-panel" aria-labelledby="servicesHeading">
+        <div class="section-heading"><div><h2 id="servicesHeading">Monitored services</h2><p class="hint compact">Checks run automatically about every minute. Use “Check now” for the live demonstration.</p></div><button class="button button-outline" id="refresh" type="button">Refresh</button></div>
+        <div id="services" class="services" aria-live="polite"></div>
+      </section>
+      <p class="footnote">A successful TCP connection means the port accepted a connection; it does not establish full application health. Monitoring results can become stale.</p>
+    </div>
+  </main>
+  <dialog id="historyDialog" class="history-dialog" aria-labelledby="historyTitle">
+    <div class="dialog-top"><h2 id="historyTitle">Check history</h2><button class="button button-outline button-small" id="closeHistory" type="button">Close</button></div>
+    <div id="historyList"></div>
+  </dialog>
+  <footer class="shell footer"><span>NetGuard · Capstone demo</span> <a href="https://github.com/ltortorigi/netguard">Source code</a></footer>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "netguard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Small, approved-target TCP availability monitor",
+  "scripts": {
+    "start": "node server/app.js",
+    "demo:target": "node server/demo-target.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "mongodb": "^6.18.0"
+  }
+}
