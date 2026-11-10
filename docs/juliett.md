@@ -1,6 +1,6 @@
-# JULIETTE — NetGuard five-minute product demonstration
+# JULIETT — NetGuard Demo Runbook
 
-**Presentation:** Tuesday, November 10, 2026. Professor's target is **approximately 5 minutes per student**.  
+**Demo:** Tuesday, November 10, 2026. Plan for approximately **10 minutes maximum**, following the posted JULIETT requirements.  
 **Final application (KILO):** December 2, 2026.  
 **Presenter:** Logan Tortorigi. **Demo:** Local Node.js / Express dashboard with a controlled localhost TCP service.
 
@@ -36,16 +36,14 @@ NetGuard gives a student managing a small number of cloud/network services one p
 4. **PowerShell Window 2:** from that same folder run `npm.cmd run demo:walkthrough`. This script signs in to NetGuard's actual API, adds or reuses `NetGuard Guided Demo`, and starts the disposable TCP listener. It prompts when to stop and restart that listener. In Chrome click **Refresh** after every stage.
 5. **Do not run `demo:target` at the same time as `demo:walkthrough`.** They both need port 43080. If you previously started the manual target, stop it with **Ctrl+C** before beginning the walkthrough.
 
-## Live demo run of show (about five minutes)
+## Demo flow
 
-| Time | What to do | What to say |
-| --- | --- | --- |
-| **0:00–0:35** Problem + user | Start with the **dashboard**, not GitHub or slides. | "If one of my network services stops responding, I don't want to check each one manually. NetGuard puts its connection status and history in one place." |
-| **0:35–1:25** Experience the product | Show signed-in dashboard. Begin guided walkthrough in Window 2; click **Refresh** in Chrome. Point to **Reachable**. | "This approved test service is running on my computer. NetGuard opens a TCP connection and saves a successful check." |
-| **1:25–2:20** Something interesting: outage | Press **Enter** at the first walkthrough prompt. Click **Refresh**. Show **Unreachable**. | "I stopped the disposable test service. NetGuard checked again, couldn't connect, and recorded the outage." |
-| **2:20–3:10** Recovery | Press **Enter** at the second prompt. Click **Refresh**. Show **Reachable**. | "I restored the service. NetGuard detected that the connection works again while keeping the earlier failure." |
-| **3:10–4:05** Persisted history | Click **History**. Show reachable → unreachable → reachable in the actual timestamps (newest first in the UI). Refresh the page and reopen History. | "The history includes the check time and connection duration. It stays saved after refreshing." |
-| **4:05–5:00** Behind the curtain, reality check, next steps | Keep the app visible. Mention the TCP checker, Express API, and current storage mode. | "Node.js runs the checks, Express serves the API, and results are saved locally in this demo. TCP only proves that a port accepted a connection. Next I'd deploy the app and add HTTP checks and notifications." |
+1. **Problem + user:** Start with the dashboard. Explain that NetGuard helps students managing a few network services check availability and review outages in one place.
+2. **Experience the product:** Show the signed-in dashboard. Start the guided walkthrough in Window 2, click **Refresh** in Chrome, and show the approved test service as **Reachable**.
+3. **Show something interesting:** Press **Enter** at the first walkthrough prompt to stop the disposable service. Refresh the dashboard and show **Unreachable**. Press **Enter** at the second prompt to restart it, refresh, and show **Reachable** again. Open **History** to show the saved success, failure, and recovery checks. Refresh the page and reopen History to demonstrate that the results remain saved.
+4. **Behind the curtain:** Briefly explain how the browser dashboard uses the Express API, how Node.js checks an approved TCP port, and how results are saved. Use the linked code only when it helps explain the behavior just demonstrated.
+5. **Reality check:** Explain that this demo runs locally and uses a JSON file unless MongoDB is configured. TCP reachability does not establish full application health. A public deployment and a live MongoDB-backed demonstration have not been verified.
+6. **What comes next:** Describe the planned deployment, HTTP checks, and notifications. Explain that useful audience feedback will help prioritize the backlog before KILO.
 
 **Optional class interaction:** Invite a classmate to tell you when to press Enter to cause the outage. The target remains the pre-approved disposable localhost service; do not allow arbitrary hosts or ports.
 
@@ -57,7 +55,7 @@ NetGuard gives a student managing a small number of cloud/network services one p
 - [ ] Clicking **Refresh** in Chrome displays those transitions for `NetGuard Guided Demo`.
 - [ ] Clicking **History** displays each real check, and the history remains after a browser refresh.
 - [ ] You have run `npm.cmd test` and confirmed its result in your environment.
-- [ ] You have rehearsed the demonstration and finished near five minutes.
+- [ ] You have rehearsed the demonstration within the approximately 10-minute maximum.
 - [ ] The repository branch being submitted contains this runbook and the current app code.
 
 ## Backup and limitations
@@ -69,3 +67,15 @@ If a demo action actually fails, explain the failure rather than claiming it wor
 ## Architecture you can explain in one sentence
 
 **Browser dashboard → Express REST API → TCP checker of an approved port → saved check history (local JSON file by default, MongoDB optionally).** A background scheduler also performs checks about every 60 seconds, and the **Check now** button or guided script initiates a check immediately.
+
+## Audience feedback and follow-up
+
+After the demo, record useful audience feedback as **keep**, **improve**, **fix**, **consider**, or **drop**. Turn meaningful feedback into [GitHub Issues](https://github.com/ltortorigi/netguard/issues), backlog updates, or [milestone changes](https://github.com/ltortorigi/netguard/milestones).
+
+Feedback is pending the demonstration. For each useful item, record:
+
+- The category and audience suggestion.
+- The decision or action to take.
+- A link to the resulting Issue or planning change.
+
+Before KILO, update this section with the resulting changes and evidence so it answers: **What changed because of JULIETT?**
