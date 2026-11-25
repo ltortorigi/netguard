@@ -18,7 +18,14 @@ An additional MongoDB integration test is included and requires `TEST_MONGODB_UR
 
 ## Browser verification
 
-Pending final local browser verification; results will be recorded before merging.
+Passed using Chromium Headless Shell on an isolated local instance: all five system cards rendered; submitting a problem updated the chart/count; a repeated report showed the duplicate warning; the history dialog opened and closed; no JavaScript page errors occurred; a 390px mobile viewport had no horizontal overflow. Desktop and mobile screenshots were visually inspected. The single report shown is disposable test data, not a report from a UNA student and not production evidence.
+
+- [Desktop screenshot](evidence/desktop.png)
+- [Mobile screenshot](evidence/mobile.png)
+
+## GitHub CI
+
+[Run 45694135359](https://github.com/ltortorigi/netguard/actions/runs/45694135359) passed on Node 22 and 24, including the MongoDB integration test against an isolated MongoDB 7 service. This verifies the adapter, not a live Atlas deployment. [Implementation PR #13](https://github.com/ltortorigi/netguard/pull/13).
 
 ## Production verification
 

@@ -84,7 +84,10 @@ async function refresh() {
     const data = await api('/api/campus'); systems = data.systems;
     const checked = systems.filter(s => s.checkUrl);
     const responding = checked.filter(s => s.status === 'responding').length;
-    $('summaryTitle').textContent = `${responding} of ${checked.length} entry points responding`;
+    const waiting = checked.filter(s => ['unknown','stale'].includes(s.status)).length;
+    $('summaryTitle').textContent = waiting === checked.length
+      ? 'Waiting for current checks'
+      : `${responding} of ${checked.length} entry points responding${waiting ? ` · ${waiting} awaiting a current result` : ''}`;
     $('summaryDetail').textContent = 'Automated checks and student reports are independent signals. Check times appear below.';
     $('updated').textContent = `Dashboard updated ${time(data.generatedAt)}`;
     const choice = $('chartSystem').value; $('chartSystem').replaceChildren();

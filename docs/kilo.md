@@ -55,7 +55,7 @@ Each [capability record](capabilities.md) explains the need, alternatives, trade
 
 - [x] Implement UNA-focused monitoring and Down Detector reports.
 - [x] Add automated checks and handoff documentation.
-- [ ] Confirm DEV tests and review evidence from GitHub Actions.
+- [x] Confirm automated tests on Node 22/24, including isolated MongoDB CI; see verification evidence.
 - [ ] Record Logan's release decision and complete the individual report in his own words.
 - [ ] Deploy reviewed MAIN through GitHub Actions to the GCP VM.
 - [ ] Verify HTTPS dashboard, login, MongoDB persistence, reports and service history in production.
