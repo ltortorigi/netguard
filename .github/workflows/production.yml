@@ -1,0 +1,68 @@
+name: Deploy GCP and finalize KILO
+on:
+  workflow_dispatch:
+    inputs:
+      finalize_release:
+        description: 'Create immutable v1.0-capstone after production verification'
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: netguard-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GCP_HOST: ${{ secrets.GCP_HOST }}
+      GCP_USER: ${{ secrets.GCP_USER }}
+      PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci && npm test
+      - name: Validate deployment configuration
+        env:
+          GCP_SSH_KEY: ${{ secrets.GCP_SSH_KEY }}
+          GCP_KNOWN_HOSTS: ${{ secrets.GCP_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$GCP_HOST" && test -n "$GCP_USER" && test -n "$GCP_SSH_KEY" && test -n "$GCP_KNOWN_HOSTS"
+          [[ "$GCP_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]+$ ]]
+          [[ "$GCP_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
+          [[ "$PRODUCTION_URL" == https://* ]]
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$GCP_SSH_KEY" > ~/.ssh/netguard
+          printf '%s\n' "$GCP_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/netguard ~/.ssh/known_hosts
+      - name: Deploy exact tested source to GCP
+        run: |
+          set -euo pipefail
+          git archive --format=tar.gz -o "/tmp/netguard-$GITHUB_SHA.tar.gz" "$GITHUB_SHA"
+          scp -i ~/.ssh/netguard -o BatchMode=yes -o StrictHostKeyChecking=yes "/tmp/netguard-$GITHUB_SHA.tar.gz" "$GCP_USER@$GCP_HOST:/tmp/netguard-$GITHUB_SHA.tar.gz"
+          ssh -i ~/.ssh/netguard -o BatchMode=yes -o StrictHostKeyChecking=yes "$GCP_USER@$GCP_HOST" bash -s -- "$GITHUB_SHA" < deploy/deploy.sh
+      - name: Verify public production endpoints
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 5 --retry-delay 3 "${PRODUCTION_URL%/}/api/health" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const h=JSON.parse(s);process.exit(h.status==='ok'&&h.storage==='MongoDB'?0:1)})"
+          curl -fsS "${PRODUCTION_URL%/}/api/campus" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>process.exit(JSON.parse(s).systems?.length===5?0:1))"
+          curl -fsS "${PRODUCTION_URL%/}/" > /tmp/netguard-production.html
+          grep -q 'UNA systems status' /tmp/netguard-production.html
+          echo "Verified production: $PRODUCTION_URL at $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Final release after verification
+        if: inputs.finalize_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create v1.0-capstone --target "$GITHUB_SHA" --title 'NetGuard UNA systems — KILO' --notes-file docs/RELEASE_NOTES.md
+      - name: Remove temporary SSH credentials
+        if: always()
+        run: rm -f ~/.ssh/netguard

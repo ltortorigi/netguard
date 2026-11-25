@@ -7,10 +7,12 @@ export function tcpCheck(host, port, timeoutMs = 5000) {
     const started = performance.now();
     let settled = false;
     let socket;
+    let deadline;
     const finish = (reachable, error = null) => {
       if (settled) return;
       settled = true;
       const latencyMs = Math.round(performance.now() - started);
+      clearTimeout(deadline);
       socket?.destroy();
       resolve({
         reachable,
@@ -19,6 +21,7 @@ export function tcpCheck(host, port, timeoutMs = 5000) {
         checkedAt: new Date().toISOString(),
       });
     };
+    deadline = setTimeout(() => finish(false, 'Connection timed out'), timeoutMs);
     try {
       socket = net.createConnection({host, port});
       socket.setTimeout(timeoutMs);

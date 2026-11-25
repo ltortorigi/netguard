@@ -79,3 +79,8 @@ Feedback is pending the demonstration. For each useful item, record:
 - A link to the resulting Issue or planning change.
 
 Before KILO, update this section with the resulting changes and evidence so it answers: **What changed because of JULIETT?**
+
+
+## Follow-up recorded for KILO
+
+On November 25, Logan relayed the professor’s direction to focus on UNA systems and include down detector. [Issue #12](https://github.com/ltortorigi/netguard/issues/12) tracks the public campus dashboard, HTTP entry-point checks and community report feature. See [KILO](kilo.md) for implementation evidence, deployment status and remaining work. The original TCP demonstration is now available at `/admin`.
