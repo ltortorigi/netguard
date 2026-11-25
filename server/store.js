@@ -9,7 +9,7 @@ export class FileStore {
   mode = 'local file';
   constructor(filename = path.resolve('data/netguard.json')) {
     this.filename = filename;
-    this.state = {services: [], checks: [], events: []};
+    this.state = {services: [], checks: [], events: [], reports: []};
     this.writes = Promise.resolve();
   }
   async init() {
@@ -18,6 +18,7 @@ export class FileStore {
     } catch (err) {
       if (err.code !== 'ENOENT') throw err;
     }
+    this.state.reports ??= [];
     await fs.mkdir(path.dirname(this.filename), {recursive: true});
   }
   async save() {
@@ -67,6 +68,17 @@ export class FileStore {
     await this.save();
   }
   async getEvents(limit = 25) { return copy(this.state.events.slice(-limit).reverse()); }
+  async addReport(report) {
+    if (this.state.reports.some(item => item.id === report.id)) return false;
+    this.state.reports = this.state.reports.filter(item => Date.parse(item.at) > Date.now() - 7 * 86400000);
+    this.state.reports.push(report);
+    if (this.state.reports.length > 5000) this.state.reports.splice(0, this.state.reports.length - 5000);
+    await this.save();
+    return true;
+  }
+  async getReports(serviceId) {
+    return copy(this.state.reports.filter(item => item.serviceId === serviceId && Date.parse(item.at) > Date.now() - 86400000));
+  }
   async close() { await this.writes; }
 }
 
@@ -83,6 +95,9 @@ export class MongoStore {
     this.services = db.collection('services');
     this.checks = db.collection('checks');
     this.events = db.collection('events');
+    this.reports = db.collection('reports');
+    await this.reports.createIndex({createdAt: 1}, {expireAfterSeconds: 604800});
+    await this.reports.createIndex({serviceId: 1, at: -1});
     await this.checks.createIndex({serviceId: 1, checkedAt: -1});
   }
   async listServices() { return this.services.find({}, {projection: {_id: 0}}).toArray(); }
@@ -112,9 +127,22 @@ export class MongoStore {
   async getEvents(limit = 25) {
     return this.events.find({}, {projection: {_id: 0}}).sort({at: -1}).limit(limit).toArray();
   }
+  async addReport(report) {
+    try {
+      await this.reports.insertOne({...report, _id: report.id, createdAt: new Date(report.at)});
+      return true;
+    } catch (error) {
+      if (error.code === 11000) return false;
+      throw error;
+    }
+  }
+  async getReports(serviceId) {
+    return this.reports.find({serviceId, at: {$gt: new Date(Date.now() - 86400000).toISOString()}},
+      {projection: {_id: 0, id: 0}}).toArray();
+  }
   async close() { await this.client?.close(); }
 }
 
 export function createStore(env = process.env) {
-  return env.MONGODB_URI ? new MongoStore(env.MONGODB_URI, env.MONGODB_DB || 'netguard') : new FileStore();
+  return env.MONGODB_URI ? new MongoStore(env.MONGODB_URI, env.MONGODB_DB || 'netguard') : new FileStore(env.DATA_FILE || undefined);
 }

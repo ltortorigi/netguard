@@ -3,12 +3,18 @@ import express from 'express';
 import {randomBytes, timingSafeEqual} from 'node:crypto';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {installCampus} from './campus.js';
 import {createStore} from './store.js';
 import {tcpCheck, readAllowedTargets, isAllowedTarget} from './tcp.js';
 
 const password = process.env.ADMIN_PASSWORD;
 if (!password || password === 'replace-this-with-a-strong-password' || password.length < 12) {
   console.error('Set a unique ADMIN_PASSWORD with at least 12 characters in .env.');
+  process.exit(1);
+}
+
+if (process.env.NODE_ENV === 'production' && !process.env.MONGODB_URI) {
+  console.error('Production requires MONGODB_URI for persistent database storage.');
   process.exit(1);
 }
 
@@ -21,6 +27,12 @@ await store.init();
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
+app.use((req, res, next) => {
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+  next();
+});
 app.use(express.json({limit: '12kb'}));
 app.use('/api', (req, res, next) => {
   res.set('Cache-Control', 'no-store');
@@ -97,6 +109,8 @@ app.post('/api/logout', requireAuth, (req, res) => {
   res.json({authenticated: false});
 });
 
+const stopCampus = installCampus(app, store, password, {monitor: process.env.CAMPUS_MONITOR_ENABLED !== 'false'});
+
 app.use('/api', requireAuth);
 app.get('/api/targets', (req, res) => res.json(allowed));
 app.get('/api/events', async (req, res) => res.json(await store.getEvents(20)));
@@ -160,6 +174,7 @@ app.get('/api/services/:id/history', async (req, res) => {
 const activeChecks = new Set();
 async function runCheck(service) {
   if (!service.enabled) return {skipped: 'paused'};
+  if (!isAllowedTarget(service.host, service.port, allowed)) return {skipped: 'target no longer approved'};
   if (activeChecks.has(service.id)) return {skipped: 'already checking'};
   activeChecks.add(service.id);
   try {
@@ -182,7 +197,8 @@ app.post('/api/services/:id/check', async (req, res) => {
 app.use('/api', (req, res) => res.status(404).json({error: 'Unknown API endpoint.'}));
 const publicDir = fileURLToPath(new URL('../public/', import.meta.url));
 app.use(express.static(publicDir));
-app.get(/.*/, (req, res) => res.sendFile(path.join(publicDir, 'index.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(publicDir, 'admin.html')));
+app.use((req, res) => res.status(404).send('Page not found.'));
 app.use((error, req, res, next) => {
   if (res.headersSent) return next(error);
   console.error('NetGuard request failed:', error.name || 'Error');
@@ -208,10 +224,11 @@ timer.unref();
 const host = process.env.HOST || '127.0.0.1';
 const port = Number(process.env.PORT || 3000);
 const server = app.listen(port, host, () => {
-  console.log(`NetGuard running on http://${host}:${port} (storage: ${store.mode})`);
+  console.log(`NetGuard running on http://${host}:${server.address().port} (storage: ${store.mode})`);
 });
 const stop = async () => {
   clearInterval(timer);
+  stopCampus();
   server.close();
   await store.close();
 };
