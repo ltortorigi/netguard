@@ -1,0 +1,21 @@
+[Unit]
+Description=NetGuard UNA status monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=netguard
+Group=netguard
+WorkingDirectory=/opt/netguard/current
+EnvironmentFile=/etc/netguard.env
+ExecStart=/usr/bin/node server/app.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

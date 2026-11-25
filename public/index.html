@@ -1,62 +1,25 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="NetGuard checks the TCP reachability of explicitly approved services.">
-  <title>NetGuard — Service availability</title>
-  <link rel="stylesheet" href="/style.css">
-  <script src="/app.js" defer></script>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Independent student project tracking UNA service entry points and community issue reports.">
+  <title>NetGuard | UNA systems status</title>
+  <link rel="stylesheet" href="/campus.css"><script src="/campus.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="shell header-inner">
-      <div class="brand"><span class="brand-mark" aria-hidden="true">●</span> NetGuard <small>Network monitoring</small></div>
-      <button id="logout" class="button button-small button-outline" type="button" hidden>Sign out</button>
-    </div>
-  </header>
-  <main class="shell">
-    <section class="hero">
-      <p class="eyebrow">SERVICE AVAILABILITY</p>
-      <h1>Know when a service goes down.</h1>
-      <p>Monitor approved TCP ports, see the latest result, and review a history of outages and recovery.</p>
-    </section>
-    <p id="message" class="message" role="status" hidden></p>
-    <section id="loginPanel" class="panel login-panel" aria-labelledby="loginTitle">
-      <h2 id="loginTitle">Administrator sign in</h2>
-      <p>Enter the password configured on the NetGuard server.</p>
-      <form id="loginForm">
-        <label for="password">Password</label>
-        <div class="form-row"><input type="password" id="password" autocomplete="current-password" required minlength="12"><button class="button" type="submit">Sign in</button></div>
-      </form>
-    </section>
-    <div id="dashboard" hidden>
-      <section class="overview" aria-label="Service summary">
-        <div class="stat"><span class="stat-label">Services</span><strong id="totalCount">0</strong></div>
-        <div class="stat"><span class="stat-label">Reachable</span><strong id="upCount">0</strong></div>
-        <div class="stat"><span class="stat-label">Unreachable</span><strong id="downCount">0</strong></div>
-        <div class="stat"><span class="stat-label">Storage</span><strong id="storageMode" class="storage-label">—</strong></div>
-      </section>
-      <section class="panel" aria-labelledby="addHeading">
-        <div class="section-heading"><h2 id="addHeading">Add an approved service</h2><span class="hint">Targets are restricted by the server configuration.</span></div>
-        <form id="addForm" class="add-form">
-          <div><label for="serviceName">Service name</label><input id="serviceName" maxlength="80" placeholder="Demo TCP service" required></div>
-          <div><label for="serviceTarget">Approved host and port</label><select id="serviceTarget" required></select></div>
-          <button class="button" type="submit">Add service</button>
-        </form>
-        <p class="hint compact">A new service starts as <strong>Unknown</strong> until its first check.</p>
-      </section>
-      <section class="panel services-panel" aria-labelledby="servicesHeading">
-        <div class="section-heading"><div><h2 id="servicesHeading">Monitored services</h2><p class="hint compact">Checks run automatically about every minute. Use “Check now” for the live demonstration.</p></div><button class="button button-outline" id="refresh" type="button">Refresh</button></div>
-        <div id="services" class="services" aria-live="polite"></div>
-      </section>
-      <p class="footnote">A successful TCP connection means the port accepted a connection; it does not establish full application health. Monitoring results can become stale.</p>
-    </div>
+  <header><div class="wrap top"><a class="brand" href="/">N<span>NetGuard<small>UNA SYSTEMS</small></span></a><nav><a href="https://www.una.edu/its/" target="_blank" rel="noopener noreferrer">UNA ITS ↗</a><a href="/admin">Admin</a></nav></div></header>
+  <main class="wrap">
+    <section class="hero"><p class="eyebrow">CAMPUS SERVICE WATCH</p><h1>Is it down,<br>or just me?</h1><p class="intro">Check UNA systems, see recent problem reports, and find the right place to get help.</p><p class="disclaimer">Independent student project · Not an official UNA status service.</p></section>
+    <div id="message" class="message" role="status" hidden></div>
+    <section class="summary" aria-label="Latest monitoring summary"><div><span class="live-dot" aria-hidden="true"></span><strong id="summaryTitle">Loading status…</strong><p id="summaryDetail">Waiting for the monitor’s latest saved results.</p></div><button id="refresh" type="button" class="secondary">Refresh status</button></section>
+    <div class="section-top"><div><p class="eyebrow">01 / SYSTEMS</p><h2>Across campus</h2></div><p id="updated" class="subtle">Not updated yet</p></div>
+    <div id="systems" class="system-grid" aria-busy="true"></div>
+    <section class="detector" aria-labelledby="detectorTitle"><div class="section-top"><div><p class="eyebrow">02 / DOWN DETECTOR</p><h2 id="detectorTitle">What students are reporting</h2></div><label>System<select id="chartSystem" aria-label="System for report chart"></select></label></div><p class="subtle">Reports submitted to NetGuard. These are unverified experiences, not confirmed outages or data from Downdetector.</p><div class="report-totals"><strong id="reportTotal">0</strong><span>reports in the last 24 hours</span></div><div id="chart" class="chart" aria-label="Reports by hour"></div><div class="chart-labels"><span>23 hours ago</span><span>Current hour</span></div><p id="reportBreakdown" class="subtle"></p><details><summary>View hourly report counts</summary><div id="chartTable"></div></details><p class="subtle">Counts are grouped by clock hour. A low count does not prove a system is working.</p></section>
+    <section class="help-grid"><div class="help-card"><p class="eyebrow">A WIDER VIEW</p><h2>Check another source</h2><p>Compare what you see here with provider updates and broader user reports.</p><div class="resource-links"><a href="https://status.instructure.com/" target="_blank" rel="noopener noreferrer">Canvas official status ↗</a><a href="https://status.cloud.microsoft/" target="_blank" rel="noopener noreferrer">Microsoft official status ↗</a><a href="https://downdetector.com/" target="_blank" rel="noopener noreferrer">Open Downdetector ↗</a></div><p class="subtle">External links only. Downdetector data is not imported; provider-wide reports may not reflect UNA.</p></div><div class="help-card"><p class="eyebrow">STILL HAVING TROUBLE?</p><h2>Get campus help</h2><p>A responding login page can still have account or course issues. Try another connection, then contact UNA ITS.</p><a class="primary link-button" href="https://www.una.edu/its/" target="_blank" rel="noopener noreferrer">Visit UNA ITS ↗</a><p class="subtle">Never enter your UNA password here. NetGuard does not sign in to UNA systems.</p></div></section>
+    <section class="method"><h2>How to read this page</h2><p><strong>Responding</strong> means the public entry point returned HTTP 2xx or 3xx. <strong>Check failed</strong> means this monitor encountered an error; it is not confirmation of a campus-wide outage. <strong>Restricted</strong> means authentication or rate limiting prevented a useful check. Unknown and stale results are not shown as healthy.</p><p>Three public entry points are checked every five minutes, with a five-second deadline and no login or redirect following. Email and campus Wi-Fi use reports only. No checks run against internal UNA networks.</p></section>
   </main>
-  <dialog id="historyDialog" class="history-dialog" aria-labelledby="historyTitle">
-    <div class="dialog-top"><h2 id="historyTitle">Check history</h2><button class="button button-outline button-small" id="closeHistory" type="button">Close</button></div>
-    <div id="historyList"></div>
-  </dialog>
-  <footer class="shell footer"><span>NetGuard · Capstone demo</span> <a href="https://github.com/ltortorigi/netguard">Source code</a></footer>
+  <dialog id="reportDialog" aria-labelledby="reportTitle"><form id="reportForm"><div class="dialog-heading"><h2 id="reportTitle">Report a problem</h2><button type="button" data-close="reportDialog" class="secondary">Close</button></div><p>Share a problem category only. No name, password, or student information is collected.</p><label for="reason">What is happening?</label><select id="reason" required><option value="cannot-load">Page or service will not load</option><option value="login">Login problem</option><option value="slow">Slow performance</option><option value="other">Other problem</option></select><p class="subtle">One report per system per network address in each 15-minute window. Shared campus networks may be counted together. A keyed hash prevents duplicates; raw IP addresses are not saved in reports.</p><p id="reportError" role="alert"></p><button id="submitReport" type="submit" class="primary">Submit report</button></form></dialog>
+  <dialog id="historyDialog" aria-labelledby="historyTitle"><div class="dialog-heading"><h2 id="historyTitle">Check history</h2><button type="button" data-close="historyDialog" class="secondary">Close</button></div><div id="history"></div></dialog>
+  <footer class="wrap"><span>NetGuard · Logan Tortorigi · CIS 486</span><a href="https://github.com/ltortorigi/netguard">Source & documentation ↗</a></footer>
 </body>
 </html>

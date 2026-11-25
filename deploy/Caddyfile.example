@@ -1,0 +1,4 @@
+# Replace with your actual domain. Configure DNS to point at the GCP VM.
+netguard.example.com {
+    reverse_proxy 127.0.0.1:3000
+}
