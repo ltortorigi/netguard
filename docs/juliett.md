@@ -32,7 +32,7 @@ NetGuard gives a student managing a small number of cloud/network services one p
 
 1. Install Node.js 22 or newer. Open PowerShell **in the NetGuard project folder that contains `package.json`**, not `C:\Windows\system32`.
 2. First setup: run `npm.cmd install`, then `Copy-Item .env.example .env` **only if `.env` does not already exist**. Open `notepad .env`, set a unique private `ADMIN_PASSWORD` at least 12 characters long, and leave `ALLOWED_TARGETS=127.0.0.1:43080` for the demo. Do not upload or show `.env`.
-3. **PowerShell Window 1:** run `npm.cmd start`, leave it running, and open `http://127.0.0.1:3000` in Chrome. Sign in using the private administrator password.
+3. **PowerShell Window 1:** run `npm.cmd start`, leave it running, and open `http://127.0.0.1:3000/admin` in Chrome. Sign in using the private administrator password.
 4. **PowerShell Window 2:** from that same folder run `npm.cmd run demo:walkthrough`. This script signs in to NetGuard's actual API, adds or reuses `NetGuard Guided Demo`, and starts the disposable TCP listener. It prompts when to stop and restart that listener. In Chrome click **Refresh** after every stage.
 5. **Do not run `demo:target` at the same time as `demo:walkthrough`.** They both need port 43080. If you previously started the manual target, stop it with **Ctrl+C** before beginning the walkthrough.
 

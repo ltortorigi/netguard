@@ -49,7 +49,7 @@ npm.cmd run demo:walkthrough
 
 The walkthrough creates or reuses an approved demo service, starts a disposable local TCP listener, and prompts you to press **Enter** to simulate its outage and recovery. In Chrome click **Refresh** after each prompt to show **Reachable → Unreachable → Reachable**; open **History** to review the saved results. Do not separately run `demo:target` at the same time; both use port `43080`.
 
-For the complete **five-minute speaking script**, exact Windows commands, and troubleshooting, open [PRESENTATION_GUIDE.txt](PRESENTATION_GUIDE.txt). The formal JULIETTE demo runbook is [docs/juliett.md](docs/juliett.md).
+For the UNA walkthrough, Windows commands, and original TCP demo instructions, open [PRESENTATION_GUIDE.txt](PRESENTATION_GUIDE.txt). The formal JULIETTE demo runbook is [docs/juliett.md](docs/juliett.md).
 
 **Manual backup:** Instead of the walkthrough, run `npm.cmd run demo:target` in the second window and add `127.0.0.1:43080` through the dashboard. Click **Check now**. Press **Ctrl+C** to stop the test service, check again, restart it, and check once more. Do **not** run this manual test target alongside the guided walkthrough.
 

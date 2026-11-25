@@ -7,4 +7,4 @@
 - Existing authenticated TCP tools retained at `/admin`.
 - Automated tests, GCP deployment templates and professional handoff documentation.
 
-See [docs/kilo.md](docs/kilo.md) for delivery links, known issues, ownership and the individual report. The final tag is created by the production workflow only after verification. Entry-point checks and community reports are not confirmation of a campus-wide outage.
+See [docs/kilo.md](https://github.com/ltortorigi/netguard/blob/v1.0-capstone/docs/kilo.md) for delivery links, known issues, ownership and the individual report. The final tag is created by the production workflow only after verification. Entry-point checks and community reports are not confirmation of a campus-wide outage.
